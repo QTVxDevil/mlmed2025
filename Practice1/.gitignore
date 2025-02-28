@@ -1,1 +1,9 @@
 dataset/
+model.dot
+model.png
+report.1.aux
+report.1.log
+report.1.out
+report.1.synctex.gz
+visualize/
+cnn_lstm_model.h5

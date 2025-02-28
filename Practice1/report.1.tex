@@ -1,0 +1,214 @@
+\documentclass[10pt, conference]{IEEEtran}
+\usepackage{graphicx}  
+\usepackage{amsmath}   
+\usepackage{amssymb}   
+\usepackage{cite}   
+\usepackage{float}    
+\usepackage{hyperref}  
+\usepackage{booktabs}  
+\usepackage{titlesec}  
+\usepackage[tableposition=top]{caption}
+\usepackage{placeins}
+
+\title{ECG Heartbeat Categorization Report}
+\author{Trinh Van Quyet\\ Data Science\\ \texttt{quyetTV.22BI13387@usth.edu.vn}}
+\date{}
+
+\begin{document}
+	\maketitle
+	
+	\begin{abstract}
+		This dataset is composed of two collections of heartbeat signals derived from two famous datasets in heartbeat classification, the MIT-BIH Arrhythmia Dataset and The PTB Diagnostic ECG Database. The number of samples in both collections is large enough for training a deep neural network.
+		
+		This dataset has been used in exploring heartbeat classification using deep neural network architectures, and observing some of the capabilities of transfer learning on it. The signals correspond to electrocardiogram (ECG) shapes of heartbeats for the normal case and the cases affected by different arrhythmias and myocardial infarction. These signals are preprocessed and segmented, with each segment corresponding to a heartbeat.
+	\end{abstract}
+	
+	\titleformat{\section}{\centering\large}{\Roman{section}.}{0.8em}{}
+	\titleformat{\subsection}{\normalsize}{\Alph{subsection}.}{0.8em}{}
+	
+	\section{\textbf{I}NTRODUCTION}
+	In this study, we focus on ECG heartbeat classification using the MIT-BIH Arrhythmia Database, a well-known benchmark dataset in the field. We develop a deep learning-based model that integrates Convolutional Neural Networks (CNNs) and Long Short-Term Memory (LSTM) to effectively capture both spatial and temporal patterns in ECG signals. 
+	
+	My approach is evaluated by comparing its performance with the results presented in the existed study \cite{kachuee2018}. Through rigorous experimentation and performance assessment, we aim to demonstrate the effectiveness of my deep learning model in improving ECG heartbeat classification accuracy. 
+	
+	\section{\textbf{D}ATASETS}
+	
+	\subsection{Overview}
+	The dataset contains preprocessed ECG heartbeat signals extracted from the MIT-BIH Arrhythmia Database. There are 109446 samples and each heartbeat instance is labeled into one of five categories. Each record contains 187 measurements of the heartbeat signal.
+	
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|c|l|l|}
+			\hline
+			\textbf{Label} & \textbf{Category} & \textbf{Description} \\ \hline
+			0 & N (Normal) & Normal heartbeat \\ \hline
+			1 & S (Supraventricular) & Abnormal supraventricular beat \\ \hline
+			2 & V (Ventricular) & Ventricular ectopic beat \\ \hline
+			3 & F (Fusion) & Fusion of normal and abnormal beat \\ \hline
+			4 & Q (Unknown) & Unclassified heartbeat \\ \hline
+		\end{tabular}
+		\caption{Five Distinct Type of Heartbeat.}
+		\label{tab:classes}
+	\end{table}
+	
+	\subsection{Exploratory Data Analysis}
+	In this section, we explore the MIT-BIH dataset to understand its structure and distribution.
+	
+	\subsubsection{Class Distribution}
+	To gain insights into the dataset's number of samples of each class, we visualized the class distribution for both the training and test sets. Figure \ref{fig:train_dist} \& \ref{fig:test_dist} present the class distribution in the MIT-BIH training and test sets.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/visualize/trainDistribution.png}
+		\caption{Class Distribution in MIT-BIH Train}
+		\label{fig:train_dist}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/visualize/testDistribution.png}
+		\caption{Class Distribution in MIT-BIH Test}
+		\label{fig:test_dist}
+	\end{figure}
+	
+	The training set exhibits a significant class imbalance, with one class dominating the dataset. This imbalance may impact model performance, requiring techniques such as resampling to address it.
+	
+	\subsubsection{ECG Signal Samples}
+	The figure \ref{fig:signal_samples} highlights the consistency between the training and test ECG signals, ensuring that the model is trained on representative data.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/visualize/signalsample.png}
+		\caption{ECG Signal Sample from MIT-BIH Train \& Test}
+		\label{fig:signal_samples}
+	\end{figure}
+	
+	Both signals exhibit similar patterns, characterized by an initial high amplitude followed by a decline and subsequent fluctuations.
+	
+	Despite their overall similarity, slight variations can be noted in the amplitude and waveform morphology between the two plots. These differences could be attributed to variations in individual heartbeats or noise present in the dataset. The gradual decrease in amplitude towards the end of both signals indicates the termination of a heartbeat cycle.
+	
+	\subsubsection{Peak Detection}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/visualize/peakdetect.png}
+		\caption{Peak Detection in ECG Signal}
+		\label{fig:peak_detect}
+	\end{figure}
+	
+	The figure \ref{fig:peak_detect} illustrates peak detection in an ECG signal, highlighting key points of interest. The blue line represents the raw ECG signal, while the red markers indicate the detected peaks. These peaks correspond to significant events in the heartbeat cycle, with the highest peak likely representing the R-wave in the QRS complex.
+	
+	\subsubsection{Frequency of ECG Signal}
+	The figure \ref{fig:frequency} presents a frequency analysis of ECG signals for both the MIT-BIH training and test datasets. The x-axis represents frequency in Hertz (Hz), while the y-axis shows the power spectral density. The training dataset exhibits higher power at lower frequencies, peaking between 0 and 10 Hz before gradually decreasing.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/visualize/frequency.png}
+		\caption{Frequency of ECG Signal}
+		\label{fig:frequency}
+	\end{figure}
+	
+	The test dataset follows a similar trend but with lower power spectral density values, suggesting possible variations in signal amplitude or noise levels between the two datasets. The presence of frequency components beyond 20 Hz is minimal, indicating that most ECG signal information is contained within the lower frequency range.
+	
+	\section{\textbf{M}ODEL ARCHITECTURE}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.13\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/model.png}
+		\caption{Model Architecture}
+		\label{fig:archihtecture}
+	\end{figure}
+	
+	I used a simple one-dimensional convolutional neural network combining with LSTM layers \ref{fig:archihtecture} is designed classifying sequential data into five categories.
+	
+	The first layer is a 1D convolutional layer with 64 filters and a kernel size of 5, using the ReLU activation function. This layer extracts local features from the input ECG signal. A batch normalization layer follows, which helps stabilize training by normalizing activations. Next, a max pooling layer with a pool size of 2 reduces the spatial dimensions, lowering computational complexity while retaining important features.
+	
+	A second 1D convolutional layer with 128 filters and a kernel size of 3 is applied, further refining feature extraction. Another batch normalization layer follows for stability, and a second max pooling layer with a pool size of 2 is used to downsample the feature maps.
+	
+	Following the convolutional layers, two LSTM layers are introduced to capture the sequential dependencies in the ECG signals. The first LSTM layer has 64 units and returns sequences, allowing the second LSTM layer with 32 units to process the extracted temporal features.
+	
+	The model then includes a fully connected dense layer with 64 neurons using the ReLU activation function to learn high-level representations. A dropout layer with a 30\% dropout rate is added to prevent overfitting by randomly deactivating neurons during training.
+	
+	Finally, a dense output layer with 5 neurons and a softmax activation function is used for classification, corresponding to the five heartbeat classes.
+	
+	The model is compiled using the Adam optimizer, categorical cross-entropy loss, and accuracy as the evaluation metric. It is trained for 20 epochs with a batch size of 64, using validation data to monitor performance. 
+	
+	\section{\textbf{R}ESULT}
+	\subsection{Performance Evaluation}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/visualize/performance.png}
+		\caption{Performance Metrics of Model}
+		\label{fig:performance}
+	\end{figure}
+	
+	The left plot \ref{fig:performance} represents the accuracy of both the training and test datasets over multiple epochs. The training accuracy follows a smooth upward trend, reaching above 99\%, indicating that the model effectively learns from the training data. The test accuracy also remains relatively high, mostly above 97\%, demonstrating good generalization. However, the fluctuations in test accuracy suggest that the model might not be completely stable when making predictions. These fluctuations could be caused by potential overfitting, where the model performs exceptionally well on the training data but struggles slightly with variations in the test set.
+	
+	The right plot \ref{fig:performance} illustrates the loss curves for both training and testing datasets. The training loss steadily decreases, which is an expected behavior for a well-trained model. However, the test loss exhibits significant fluctuations, with sharp spikes at certain points. These variations suggest that the model struggles with some batches of the test set, leading to occasional high losses. This behavior may indicate high variance, meaning the model might be overfitting to the training data and not generalizing consistently.
+	
+	From the figure \ref{fig:confusion_matrix}, we observe that Class 0 has the highest number of correctly classified samples, with 18,012 instances predicted correctly, and very few misclassified samples. This suggests that the model performs exceptionally well for this majority class. Class 1 shows a noticeable number of misclassifications, with 119 samples being incorrectly predicted as Class 0. This indicates that the model struggles to distinguish Class 1 from Class 0, potentially due to similarities in their feature distributions.
+	
+	Similarly, Class 2 achieves strong performance, with 1,340 correct predictions. However, there are some misclassified cases, particularly 68 samples being predicted as Class 0 and 29 as Class 3. This suggests some level of overlap between these classes, which could be mitigated through improved feature extraction or additional training data.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice1/visualize/confusionmatrix.png}
+		\caption{Confusion Matrix}
+		\label{fig:confusion_matrix}
+	\end{figure}
+	
+	For Class 3, the model correctly classifies 114 samples but shows minor confusion with Classes 2 and 0. Lastly, Class 4 achieves 1,582 correct classifications, with only a few misclassified instances, demonstrating relatively high precision for this category.	
+		
+	\subsection{Compare With Existed Paper}
+		
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|l|l|c|}
+			\hline
+			\textbf{Work} & \textbf{Approach} & \textbf{Average Accuracy (\%)} \\ 
+			\hline
+			\textbf{This report} & \textbf{CNN + LSTM} & \textbf{98.0} \\ 
+			Acharya \textit{et al.}~\cite{acharya2017} & Augmentation + CNN & 93.5 \\ 
+			Martis \textit{et al.}~\cite{martis2013} & DWT + SVM & 93.8 \\ 
+			Li \textit{et al.}~\cite{li2016} & DWT + random forest & 94.6 \\ 
+			\hline
+		\end{tabular}
+		\caption{Comparison of heartbeat classification results.}
+		\label{tab:heartbeat_comparison}
+	\end{table}
+	
+	In comparison to previous studies \ref{tab:heartbeat_comparison}, my CNN + LSTM model achieves a significantly higher accuracy of 98.0\%, outperforming all referenced methods. Acharya et al. \cite{acharya2017} implemented an augmentation-based CNN approach, achieving an accuracy of 93.5\%, while Martis et al. \cite{martis2013} and Li et al. \cite{li2016} employed Discrete Wavelet Transform (DWT) with Support Vector Machine (SVM) and Random Forest, obtaining 93.8\% and 94.6\%, respectively. The superior performance of my model can be attributed to the integration of CNN for feature extraction and LSTM for temporal sequence learning, allowing for a more comprehensive understanding of ECG signals.
+	
+	\section{\textbf{C}ONCLUSION}
+	In this report, I presented a CNN + LSTM-based approach for ECG heartbeat classification, achieving an impressive accuracy of 98.0\%, surpassing previous methods. By leveraging CNN for feature extraction and LSTM for temporal sequence learning, my model effectively captures both spatial and temporal dependencies in ECG signals.
+	
+	My results demonstrate that deep learning models, particularly those integrating CNN and LSTM, provide a more robust and accurate solution for heartbeat classification.
+	
+	\begin{thebibliography}{4}
+		\bibitem{kachuee2018}
+		M. Kachuee, S. Fazeli, and M. Sarrafzadeh, 
+		"ECG Heartbeat Classification: A Deep Transferable Representation," 
+		\textit{arXiv preprint arXiv:1804.06812}, 2018.
+		
+		\bibitem{acharya2017} 
+		U. R. Acharya, S. L. Oh, Y. Hagiwara, J. H. Tan, M. Adam, A. Gertych, and R. San Tan,  
+		``A deep convolutional neural network model to classify heartbeats,''  
+		\textit{Computers in Biology and Medicine}, vol. 89, pp. 389--396, 2017.
+		
+		\bibitem{martis2013} 
+		R. J. Martis, U. R. Acharya, C. M. Lim, K. Mandana, A. K. Ray, and C. Chakraborty,  
+		``Application of higher order cumulant features for cardiac health diagnosis using ECG signals,''  
+		\textit{International Journal of Neural Systems}, vol. 23, no. 4, p. 1350014, 2013.
+		
+		\bibitem{li2016} 
+		T. Li and M. Zhou,  
+		``ECG classification using wavelet packet entropy and random forests,''  
+		\textit{Entropy}, vol. 18, no. 8, p. 285, 2016.
+		
+		
+		
+	\end{thebibliography}
+	
+	
+	
+\end{document}
