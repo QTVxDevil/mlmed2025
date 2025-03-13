@@ -1,0 +1,62 @@
+\documentclass[10pt, conference]{IEEEtran}
+\usepackage{graphicx}  
+\usepackage{amsmath}   
+\usepackage{amssymb}   
+\usepackage{cite}   
+\usepackage{float}    
+\usepackage{hyperref}  
+\usepackage{booktabs}  
+\usepackage{titlesec}  
+\usepackage[tableposition=top]{caption}
+\usepackage{placeins}
+
+\title{Fetal Head Circumference Semantic Segmentation Report}
+\author{Trinh Van Quyet\\ Data Science\\ \texttt{quyetTV.22BI13387@usth.edu.vn}}
+
+\begin{document}
+	\maketitle
+	
+	\begin{abstract}
+		The fetal head circumference (HC) is a useful tool to monitor gestational age in fetuses. I implemented a Deeplabv3 pretrained model for computing the HC from 2D ultrasound images using annotation as patterns for model learning to perform a semantic segmentation task.
+	\end{abstract}
+	
+	\titleformat{\section}{\centering\large}{\Roman{section}.}{0.8em}{}
+	\titleformat{\subsection}{\normalsize}{\Alph{subsection}.}{0.8em}{}
+	
+	\section{Introduction}
+	To monitor gestational age and fetal growth, ultrasound imaging is used to measure fetal head circumference (HC). The HC18 challenge provides a dataset for automating HC computation from ultrasound images. I decide to approach the HC18 challenge and build a DeepLabv3 pretrained model to segment the fetal head masks and then compute to get results.
+	
+	\section{Methodology}
+	\subsection{Data Exploration}
+	The dataset have 999 ultrasound images and their correspond annotations in training set. On the other hand, there are 335 images in test set.
+	
+	The first, I visualize both ultrasound images and their correspond annotation images on a figure to whether their annotation is right.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{D:/USTH_SUBJECTS/B3/MachineLearningInMedicine/mlmed2025/Practice2/figures/EDA.png}
+		\caption{Visualize Ultrasound Images and Their Annotations}
+		\label{fig:visualize}
+	\end{figure}
+	
+	The next, I conduct to extracting the properties of image such as filename, height, width, channel and format.
+	
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\textbf{Filename} & \textbf{Height} & \textbf{Width} & \textbf{Channel} & \textbf{Format} \\ \hline
+			000\_HC.png & 540 & 800 & 3 & png \\ \hline
+			001\_HC.png & 540 & 800 & 3 & png \\ \hline
+			002\_HC.png & 540 & 800 & 3 & png \\ \hline
+			003\_HC.png & 540 & 800 & 3 & png \\ \hline
+			004\_HC.png & 540 & 800 & 3 & png \\ \hline
+			005\_HC.png & 540 & 800 & 3 & png \\ \hline
+			
+		\end{tabular}
+		\caption{Image Properties}
+		\label{tab:properties}
+	\end{table}
+	
+	\subsection{Data Pre-processing}
+\end{document}
